@@ -76,11 +76,12 @@ def revert_fish_eye(undistorted_img, original_shape):
 def mask_png_artem(img, kernel_sz=2, iterations=5):
     hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hist = cv2.calcHist([hsv_image], [0], None, [180], [0, 180])
+    print(hist)
     peak = np.argmax(hist)
     tolerance = 50
     lower_bound = (np.array([max(0, peak - tolerance), 80, 50]))
     upper_bound = np.array([min(255, peak + tolerance), 255, 255])
-    mask = cv2.inRange(hsv_image, (lower_bound), upper_bound)
+    mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
     kernel_size = kernel_sz
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
     closed_mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=iterations)
@@ -116,7 +117,7 @@ def find_food_img(img):
 
     # фикс рыбьего глаза
     img_fixed_eye = fix_fish_eye(img)
-    # cv2.imwrite("fix_eye.jpg", img_fixed_eye)
+    cv2.imwrite("fix_eye.jpg", img_fixed_eye)
 
     # поворот изображения на угол
     height, width = img_fixed_eye.shape[:2]
@@ -127,15 +128,15 @@ def find_food_img(img):
     # кроп чтоб без черных полос
     cropped_black_image = \
         rotated_image[crop_top_black:crop_down_black, crop_left_black:crop_right_black].copy()
-    # cv2.imwrite("fix_eye_noblack.jpg", cropped_black_image)
+    cv2.imwrite("fix_eye_noblack.jpg", cropped_black_image)
 
     # кроп изображения только на еде
     cropped_food_image = cropped_black_image[crop_food_y1:crop_food_y2, :].copy()
-    # cv2.imwrite("cropped_food_image.jpg", cropped_food_image)
+    cv2.imwrite("cropped_food_image.jpg", cropped_food_image)
 
     # получить маску корма
     mask_food_img = mask_png_artem(cropped_food_image, kernel_sz, iterations)
-    # cv2.imwrite("mask_food_img.jpg", mask_food_img)
+    cv2.imwrite("mask_food_img.jpg", mask_food_img)
 
     # накладываем маску на изображение
     top_black_strip = np.zeros((crop_food_y1, cropped_black_image.shape[1]), dtype=np.uint8)
@@ -148,7 +149,7 @@ def find_food_img(img):
     alpha = 0.5  # Значение от 0 (полностью прозрачный) до 1 (полностью непрозрачный)
     cropped_black_image_uint8 = cropped_black_image.astype(np.uint8)
     result_img = cropped_black_image_uint8 + alpha * red_regions
-    # cv2.imwrite("masked_img.jpg", result_img)
+    cv2.imwrite("masked_img.jpg", result_img)
 
     # рисуем дополнительные линии
     # корм сверху
@@ -179,7 +180,7 @@ def find_food_img(img):
         (0, 255, 255),
         1)
 
-    # cv2.imwrite("masked+lines.jpg", result_img)
+    cv2.imwrite("masked+lines.jpg", result_img)
 
     # посчитать кол-во корма в м^2
     s_all = count_white_pixels_in_mask(mask_food_img)
@@ -218,7 +219,7 @@ def find_food_img(img):
         (0, 0, 255),
         3)
 
-    # cv2.imwrite("done.jpg", result_img)
+    cv2.imwrite("done.jpg", result_img)
 
     return result_img, (square_s_all, square_s_up, square_s_down)
 
@@ -237,10 +238,10 @@ device = torch.device("cuda")
 
 # model_scripted = torch.jit.script(model) # Export to TorchScript
 # model_scripted.save('model_scripted.pt') # Save
-model = torch.jit.load('model_scripted.pt')
-model.eval()
+# model = torch.jit.load('model_scripted.pt')
+# model.eval()
 
-model.cuda(device)
+# model.cuda(device)
 
 # what type?
 
@@ -279,8 +280,8 @@ class ServerSocket:
                 print('receive time: ' + datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f'))
                 data = numpy.frombuffer(base64.b64decode(stringData), numpy.uint8)
                 decimg = cv2.imdecode(data, 1)
-                cv2.imshow('orig', img)
-                
+                cv2.imshow('orig', decimg)
+                cv2.waitKey(1)
                 img = cv2.resize(decimg, (2592, 1944),interpolation=cv2.INTER_CUBIC)
                 im = find_food_img(img)[0]
                 
@@ -289,6 +290,10 @@ class ServerSocket:
 
                 k = cv2.waitKey(0)
                 print(k)
+                imr = cv2.imread('test.jpg')
+                cv2.imshow("imr", imr)
+                k = cv2.waitKey(1)
+                
                 if k == ord('q'):
                     print('quit')
                     break
