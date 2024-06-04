@@ -234,7 +234,7 @@ dir = path.dirname(path.abspath(__file__))
 chdir(dir)
 
 # device = torch.device("cpu")
-device = torch.device("cuda")
+# device = torch.device("cuda")
 
 # model_scripted = torch.jit.script(model) # Export to TorchScript
 # model_scripted.save('model_scripted.pt') # Save
