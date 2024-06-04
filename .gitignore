@@ -1,3 +1,4 @@
 *.mp4
 model_scripted.pt
 data
+*.jp*g

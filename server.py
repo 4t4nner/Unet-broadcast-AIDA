@@ -53,8 +53,9 @@ model.eval()
 model.cuda(device)
 
 # what type?
-def predict(model, data: cv2.typing.MatLike):
-    Y_pred = [model(X_batch) for X_batch in data]
+def predict(model, im: cv2.typing.MatLike):
+    t = torch.from_numpy(im).cuda(device)
+    Y_pred = [model(X_batch) for X_batch in t]
     return np.array(Y_pred)
 
 class ServerSocket:
