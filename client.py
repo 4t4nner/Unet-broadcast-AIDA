@@ -6,7 +6,17 @@ import time
 from datetime import datetime, timezone
 import base64
 import subprocess
-import os.path as path
+from os import path, chdir
+
+def check_download(video_path):
+    if not (path.isfile(video_path) or path.isfile('model_scripted.pt')):
+        subprocess.run(["pip","install", "gdown"])
+        subprocess.run(["gdown", "1gfJ1cBU_R7JbscQfmheoGBMzkFag0YMU"])
+
+dir = path.dirname(path.abspath(__file__))
+chdir(dir)
+video_path = path.join(dir, 'out.mp4')
+check_download(video_path)
 
 
 class ClientVideoSocket:
@@ -67,18 +77,14 @@ class ClientVideoSocket:
             time.sleep(1)
             self.connectServer()
             self.sendImages()
-def check_download_video(video_path):
-    if not path.isfile(video_path):
-        subprocess.run(["pip","install", "gdown"])
-        subprocess.run(["gdown", "1gfJ1cBU_R7JbscQfmheoGBMzkFag0YMU"])
 
 def main():
     TCP_IP = 'localhost'
     TCP_PORT = 8081
 
-
-    video_path = path.join(path.dirname(path.abspath(__file__)), 'out.mp4')
-    check_download_video(video_path)
+    dir = path.dirname(path.abspath(__file__))
+    chdir(dir)
+    video_path = path.join(dir, 'out.mp4')
 
     client = ClientVideoSocket(TCP_IP, TCP_PORT, video_path)
 
