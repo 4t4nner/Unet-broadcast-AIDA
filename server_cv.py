@@ -6,33 +6,11 @@ import time
 from datetime import datetime, timezone
 import base64
 
-import math
-import torch.nn as nn
-import segmentation_models_pytorch as smp
-import albumentations as A
-from pycocotools.coco import COCO
-import os
-from PIL import Image
 import numpy as np
-from matplotlib import pyplot as plt
-import torch
-import torchvision
-import torchvision.transforms as transforms
-import cv2
-import json
-import kwcoco
-import pandas as pd
-import torchvision.transforms.functional as TF
-from torch.utils.data import Dataset, DataLoader
-from torchvision import models
-from torch.nn.functional import relu
-
-from torch.utils.data import Dataset
 import cv2
 
 from os import path, chdir
 import subprocess
-import imutils
 
 # убирает рыбий глаз (работает только на камере№2)
 # вернет изображение с черными рамками
