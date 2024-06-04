@@ -53,7 +53,7 @@ model.eval()
 model.cuda(device)
 
 # what type?
-def predict(model, data):
+def predict(model, data: cv2.typing.MatLike):
     Y_pred = [model(X_batch) for X_batch in data]
     return np.array(Y_pred)
 
